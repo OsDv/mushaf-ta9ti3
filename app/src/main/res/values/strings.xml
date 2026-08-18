@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">mushaf-ta9ti3</string>
+    <string name="mushaf">المصحف</string>
+    <string name="ta9ti3">التقطيع</string>
+    <string name="alhizb">الحزب</string>
+    <string name="correctAnswers">الإجابات الصحيحة</string>
+    <string name="theQuestion">السؤال</string>
+    <string name="wrongAnswers">الإجابات الخاطئة</string>
+    <string name="endExam">إنهاء الإختبار</string>
+    <string name="showAyah">إظهار آية</string>
+    <string name="showWord">إظهار كلمة</string>
+    <string name="surah">سورة</string>
+    <string name="back">عودة</string>
+</resources>
