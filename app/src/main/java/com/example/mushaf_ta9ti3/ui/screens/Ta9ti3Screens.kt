@@ -59,11 +59,7 @@ fun Ta9ti3SetupScreen(onStartTest: () -> Unit, onBack: () -> Boolean, viewModel:
     val defaultTextColor = MaterialTheme.colorScheme.onBackground
     val selectedColor = MaterialTheme.colorScheme.primary
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Button(
-            onClick = { viewModel.initTest(onStartTest) }
-        )
-        {Text("Start Test") }
+    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         HizbSurahSelectionScreen(
             surahList = surahNames,
             hizbList = hizbNames,
@@ -75,8 +71,15 @@ fun Ta9ti3SetupScreen(onStartTest: () -> Unit, onBack: () -> Boolean, viewModel:
                     SelectionMode.HIZB -> if (selectedHizbs.contains(index + 1)) selectedColor else defaultTextColor
                 }
             },
-            onTabChange = { tab -> viewModel.setSelectionMode(tab) }
+            onTabChange = { tab -> viewModel.setSelectionMode(tab) },
+            modifier = Modifier.weight(1f)
         )
+        Button(
+            onClick = { viewModel.initTest(onStartTest) },
+            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+
+        )
+        {Text(text = stringResource(R.string.startTest)) }
     }
 }
 @Composable
@@ -229,13 +232,15 @@ fun HizbSurahSelectionScreen(
                 items = surahList,
                 onItemClick = onSurahClick,
                 getTextColor = getTextColor,
-                type = SelectionMode.SURAH
+                type = SelectionMode.SURAH,
+                modifier = Modifier.weight(1f)
             )
             SelectionMode.HIZB -> SelectableList(
                 items = hizbList,
                 onItemClick = onHizbClick,
                 getTextColor = getTextColor,
-                type = SelectionMode.HIZB
+                type = SelectionMode.HIZB,
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -271,7 +276,9 @@ private fun SelectableList(
     getTextColor: (type: SelectionMode, index: Int) -> Color,
     type: SelectionMode = SelectionMode.SURAH
 ) {
-    LazyColumn(modifier = modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+    LazyColumn(modifier = modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp)) {
         itemsIndexed(items) { index, item ->
 
             val textColor = getTextColor(type, index)
