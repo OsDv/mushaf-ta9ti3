@@ -1,7 +1,5 @@
 package com.example.mushaf_ta9ti3.ui.screens
 
-import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -32,16 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.room3.util.getColumnIndex
 import com.example.mushaf_ta9ti3.R
 import com.example.mushaf_ta9ti3.enum.SelectionMode
-import com.example.mushaf_ta9ti3.ui.theme.Mushafta9ti3Theme
 import com.example.mushaf_ta9ti3.view.Ta9ti3ViewModel
 
 
@@ -76,7 +72,9 @@ fun Ta9ti3SetupScreen(onStartTest: () -> Unit, onBack: () -> Boolean, viewModel:
         )
         Button(
             onClick = { viewModel.initTest(onStartTest) },
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
 
         )
         {Text(text = stringResource(R.string.startTest)) }
@@ -127,7 +125,10 @@ fun Ta9ti3SessionScreen(onEndSession: () -> Unit, viewModel: Ta9ti3ViewModel)
         ) {
             val textColor = MaterialTheme.colorScheme.onBackground
             val currentCursor = viewModel.CurrentPointer.collectAsState()
-            Mushaf(lines, textColor = {id->
+            Mushaf(
+                viewModel = viewModel,
+                lines = lines,
+                textColor = {id->
                 if (id <= currentCursor.value) {
                     textColor
                 } else {
@@ -153,10 +154,10 @@ fun Ta9ti3SessionScreen(onEndSession: () -> Unit, viewModel: Ta9ti3ViewModel)
             Button(onClick = { viewModel.onWrongAnswer() }, colors = incorrectButtonColors){Text(text = stringResource(R.string.wrongAnswers))}
             Button(onClick = { viewModel.onEndSession(onEndSession = onEndSession) }){Text(text = stringResource(R.string.endExam))}
         }
-        Row(horizontalArrangement = Arrangement.SpaceAround)
+        Row(horizontalArrangement = Arrangement.Center)
         {
-            Button(onClick = {viewModel.onShowWord()}){Text(text = stringResource(R.string.showWord))}
-            Button(onClick = {viewModel.onShowAyah()}){Text(text = stringResource(R.string.showAyah))}
+            Button(onClick = {viewModel.onShowWord()}, modifier = Modifier.weight(1f)){Text(text = stringResource(R.string.showWord))}
+            Button(onClick = {viewModel.onShowAyah()}, modifier = Modifier.weight(1f)){Text(text = stringResource(R.string.showAyah))}
         }
     }
 }

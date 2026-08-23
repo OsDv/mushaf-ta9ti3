@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.util.Log
 import android.webkit.WebView
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,10 +29,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -39,6 +43,7 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -88,8 +93,8 @@ fun MushafScreen(viewModel: MushafViewModel, onReturnHome: () -> Unit) {
                 .padding(top = 16.dp, start = 12.dp, end = 12.dp),
             contentAlignment = Alignment.TopCenter
         ) {
-            val primary = MaterialTheme.colorScheme.primary
-            Mushaf(lines = lines, textColor = {primary})
+            val textColor = MaterialTheme.colorScheme.onBackground
+            Mushaf(lines = lines, textColor = {textColor}, viewModel = viewModel)
             //MushafWebView(lines = lines)
         }
 
@@ -124,6 +129,7 @@ fun MushafScreen(viewModel: MushafViewModel, onReturnHome: () -> Unit) {
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun Mushaf(
+    viewModel: MushafViewModel,
     lines: List<List<QuranWord>>,
     modifier: Modifier = Modifier,
     minRowHeight: Dp = 40.dp,
@@ -131,15 +137,24 @@ fun Mushaf(
 ) {
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val surahsList by viewModel.surahList.collectAsState()
 
     if (isLandscape) {
         // Landscape: ignore height constraint entirely, size by width only, scroll if needed
         Column(
             modifier = modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             lines.forEach { line ->
+                if (line.first().id in viewModel.surahStartsList ) {
+                    val surahName = surahsList[line.first().surah - 1].nameArabic
+                    // no basmalah in surat taouba 9
+                    // surat fatiha has basmalah in it's first line
+                    val isBasmalah = (line.first().surah != 1 && line.first().surah != 9)
+                    surahTitle(surah = surahName, basmalah = viewModel.basmalahText, isBamalah = isBasmalah)
+                }
                 AutoSizeRow(
                     words = line.reversed(),
                     modifier = Modifier
@@ -165,9 +180,17 @@ fun Mushaf(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(contentHeight)
+                        .height(contentHeight),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     lines.forEach { line ->
+                        if (line.first().id in viewModel.surahStartsList ) {
+                            val surahName = surahsList[line.first().surah - 1].nameArabic
+                            // no basmalah in surat taouba 9
+                            // surat fatiha has basmalah in it's first line
+                            val isBasmalah = (line.first().surah != 1 && line.first().surah != 9)
+                            surahTitle(surah = surahName, basmalah = viewModel.basmalahText, isBamalah = isBasmalah)
+                        }
                         AutoSizeRow(
                             words = line.reversed(),
                             modifier = Modifier
@@ -233,6 +256,7 @@ private fun AutoSizeRow(
                 )
             }
         }
+
     }
 }
 
@@ -285,4 +309,42 @@ private fun wordsFit(
     }
 
     return maxLineHeight <= maxHeightPx && totalWidth <= maxWidthPx
+}
+
+@Composable
+fun surahTitle(surah: String,basmalah: String,isBamalah: Boolean){
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.sura_border),
+            contentDescription = "Surah Border",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+        Text(
+            text = surah,
+            fontSize = 18.sp,
+            fontFamily = MushafFontFamily,
+            maxLines = 1,
+            softWrap = false,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+    val SuratTaouba = 9
+    if (isBamalah){
+        Text(
+            text = basmalah,
+            fontSize = 16.sp,
+            fontFamily = MushafFontFamily,
+            maxLines = 1,
+            softWrap = false,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+    }
 }

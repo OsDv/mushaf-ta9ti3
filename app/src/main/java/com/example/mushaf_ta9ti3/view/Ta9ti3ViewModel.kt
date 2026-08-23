@@ -17,10 +17,7 @@ import java.util.Collections.emptyList
 
 
 class Ta9ti3ViewModel(private val repository: QuranRepository) : MushafViewModel(repository) {
-    private val _hizbList = MutableStateFlow<List<Hizb>>(emptyList())
-    val hizbList: StateFlow<List<Hizb>> = _hizbList.asStateFlow()
-    private val _surahList = MutableStateFlow<List<Chapter>>(emptyList())
-    val surahList: StateFlow<List<Chapter>> = _surahList.asStateFlow()
+
 
     private val _selectedHizbs = MutableStateFlow<Set<Int>>(emptySet())
     val selectedHizbs: StateFlow<Set<Int>> = _selectedHizbs.asStateFlow()
@@ -49,8 +46,6 @@ class Ta9ti3ViewModel(private val repository: QuranRepository) : MushafViewModel
 
     init {
         viewModelScope.launch {
-            _hizbList.value = repository.getAllHizbs()
-            _surahList.value = repository.getAllChapters()
         }
     }
     fun resetSelectedHizbs() {

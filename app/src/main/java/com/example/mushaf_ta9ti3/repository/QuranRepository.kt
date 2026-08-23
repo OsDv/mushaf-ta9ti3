@@ -77,4 +77,10 @@ class QuranRepository(quranDB: QuranDatabase) {
     suspend fun getWordPage(word: Int): Int {
         return pageDao.getWordPage(word)
     }
+    suspend fun getSurahsStarts(): List<Int> {
+        return wordDao.getSurahsStart()
+    }
+    suspend fun getBasmalah(): String {
+        return wordDao.getBasmalah().joinToString(" ")
+    }
 }

@@ -22,4 +22,10 @@ interface WordDao {
 
     @Query("SELECT * from words where id = :id")
     suspend fun getWordById(id : Int): QuranWord
+
+    @Query("SELECT w.id FROM words w where w.ayah = 1 AND w.word = 1")
+    suspend fun getSurahsStart(): List<Int>
+
+    @Query("SELECT w.text FROM words w where w.id BETWEEN 1 AND 4")
+    suspend fun getBasmalah(): List<String>
 }
