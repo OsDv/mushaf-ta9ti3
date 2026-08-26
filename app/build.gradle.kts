@@ -59,6 +59,8 @@ dependencies {
     val room_version = "3.0.0"
     implementation("androidx.room3:room3-runtime:$room_version")
     ksp("androidx.room3:room3-compiler:$room_version")
+
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
     //val roomVersion = "2.6.1"
     //implementation("androidx.room:room-runtime:$roomVersion")
     //implementation("androidx.room:room-ktx:$roomVersion")

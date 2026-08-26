@@ -1,20 +1,23 @@
 package com.example.mushaf_ta9ti3.view
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewModelScope
+import com.example.mushaf_ta9ti3.UserPreferences
+import com.example.mushaf_ta9ti3.enum.MushafFont
 import com.example.mushaf_ta9ti3.model.Chapter
 import com.example.mushaf_ta9ti3.model.Hizb
 import com.example.mushaf_ta9ti3.model.Page
 import com.example.mushaf_ta9ti3.model.QuranWord
 import com.example.mushaf_ta9ti3.repository.QuranRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Collections
 
-open class MushafViewModel(private val repository: QuranRepository) : ViewModel() {
+open class MushafViewModel(private val repository: QuranRepository,private val userPreferences: UserPreferences) : ViewModel() {
     private val _pageList = MutableStateFlow<List<Page>>(emptyList())
     val pageList: StateFlow<List<Page>> = _pageList.asStateFlow()
 
@@ -22,6 +25,12 @@ open class MushafViewModel(private val repository: QuranRepository) : ViewModel(
     val hizbList: StateFlow<List<Hizb>> = _hizbList.asStateFlow()
     private val _surahList = MutableStateFlow<List<Chapter>>(Collections.emptyList())
     val surahList: StateFlow<List<Chapter>> = _surahList.asStateFlow()
+    val currentFont: StateFlow<MushafFont> = userPreferences.currentFontFlow
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = MushafFont.STANDARD
+        )
 
     // private val _wordList = MutableStateFlow<List<QuranWord>>(emptyList())
     // val wordList: StateFlow<List<QuranWord>> = _wordList.asStateFlow()
@@ -31,6 +40,8 @@ open class MushafViewModel(private val repository: QuranRepository) : ViewModel(
 
     private val _currentPageLines = MutableStateFlow<List<List<QuranWord>>>(emptyList())
     val currentPageLines: StateFlow<List<List<QuranWord>>> = _currentPageLines.asStateFlow()
+//    private val _nextPageLines :MutableList<List<QuranWord>> = mutableListOf()
+//    private val _previousPageLines :List<List<QuranWord>> = mutableListOf()
 
     private val surahsStarts = mutableListOf<Int>()
     val surahStartsList: List<Int> get() = surahsStarts
@@ -48,7 +59,7 @@ open class MushafViewModel(private val repository: QuranRepository) : ViewModel(
             _pageList.value = repository.getAllPages()
             _hizbList.value = repository.getAllHizbs()
             _surahList.value = repository.getAllChapters()
-            basmalah = repository.getBasmalah()
+            basmalah = repository.getBasmalah().joinToString(" ")
             // _wordList.value = repository.getAllWords()
             _currentPage.value = 1
             _pagesNumber = repository.getNumberOfPages()
@@ -74,13 +85,9 @@ open class MushafViewModel(private val repository: QuranRepository) : ViewModel(
         }
     }
     fun loadPage(pageNumber: Int) {
-        // 1. Launch a coroutine tied to the ViewModel
         viewModelScope.launch {
-
             _currentPageLines.value = emptyList()
-
             val pages = _pageList.value.filter { it.page_number == pageNumber }
-
             val lines = mutableListOf<List<QuranWord>>()
 
             pages.forEach { page ->

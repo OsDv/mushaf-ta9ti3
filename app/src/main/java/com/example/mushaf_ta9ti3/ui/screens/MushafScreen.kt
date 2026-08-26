@@ -2,8 +2,6 @@ package com.example.mushaf_ta9ti3.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
-import android.util.Log
-import android.webkit.WebView
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -29,7 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -39,23 +36,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import com.example.mushaf_ta9ti3.R
+import com.example.mushaf_ta9ti3.enum.SurahNameFontFamily
 import com.example.mushaf_ta9ti3.model.QuranWord
 import com.example.mushaf_ta9ti3.view.MushafViewModel
 
-val MushafFontFamily = FontFamily(
-    Font(R.font.quran_font, FontWeight.Normal)
-)
 
 @Composable
 fun MushafScreen(viewModel: MushafViewModel, onReturnHome: () -> Unit) {
@@ -138,6 +130,7 @@ fun Mushaf(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     val surahsList by viewModel.surahList.collectAsState()
+    val mushafFont by viewModel.currentFont.collectAsState()
 
     if (isLandscape) {
         // Landscape: ignore height constraint entirely, size by width only, scroll if needed
@@ -153,14 +146,17 @@ fun Mushaf(
                     // no basmalah in surat taouba 9
                     // surat fatiha has basmalah in it's first line
                     val isBasmalah = (line.first().surah != 1 && line.first().surah != 9)
-                    surahTitle(surah = surahName, basmalah = viewModel.basmalahText, isBamalah = isBasmalah)
+                    // SurahTitle(surah = surahName, basmalah = viewModel.basmalahText, isBamalah = isBasmalah, font = mushafFont.fontFamily)
+                    SurahTitleWithNumber(surah = line.first().surah, basmalah = viewModel.basmalahText, isBamalah = isBasmalah, font = mushafFont.fontFamily)
+
                 }
                 AutoSizeRow(
                     words = line.reversed(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight(),
-                        textColor = textColor
+                        textColor = textColor,
+                        fontFamily = mushafFont.fontFamily
                     // row height = whatever the chosen font needs
                     //constrainHeight = false
                 )
@@ -189,14 +185,16 @@ fun Mushaf(
                             // no basmalah in surat taouba 9
                             // surat fatiha has basmalah in it's first line
                             val isBasmalah = (line.first().surah != 1 && line.first().surah != 9)
-                            surahTitle(surah = surahName, basmalah = viewModel.basmalahText, isBamalah = isBasmalah)
+                            //SurahTitle(surah = surahName, basmalah = viewModel.basmalahText, isBamalah = isBasmalah, font = mushafFont.fontFamily)
+                            SurahTitleWithNumber(surah = line.first().surah, basmalah = viewModel.basmalahText, isBamalah = isBasmalah, font = mushafFont.fontFamily)
                         }
                         AutoSizeRow(
                             words = line.reversed(),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f),
-                            textColor = textColor
+                            textColor = textColor,
+                            fontFamily = mushafFont.fontFamily
                             //constrainHeight = true
                         )
                     }
@@ -214,7 +212,7 @@ private fun AutoSizeRow(
     constrainHeight: Boolean = true,
     minFontSize: TextUnit = 8.sp,
     maxFontSize: TextUnit = 60.sp,
-    fontFamily: FontFamily = MushafFontFamily,
+    fontFamily: FontFamily ,
     textColor: (id: Int) -> Color
 ) {
     BoxWithConstraints(modifier = modifier) {
@@ -312,7 +310,7 @@ private fun wordsFit(
 }
 
 @Composable
-fun surahTitle(surah: String,basmalah: String,isBamalah: Boolean){
+fun SurahTitle(surah: String,basmalah: String,isBamalah: Boolean,font: FontFamily){
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -329,18 +327,54 @@ fun surahTitle(surah: String,basmalah: String,isBamalah: Boolean){
         Text(
             text = surah,
             fontSize = 18.sp,
-            fontFamily = MushafFontFamily,
+            fontFamily = font,
             maxLines = 1,
             softWrap = false,
             color = MaterialTheme.colorScheme.onBackground
         )
     }
-    val SuratTaouba = 9
     if (isBamalah){
         Text(
             text = basmalah,
             fontSize = 16.sp,
-            fontFamily = MushafFontFamily,
+            fontFamily = font,
+            maxLines = 1,
+            softWrap = false,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+@Composable
+fun SurahTitleWithNumber(surah: Int, basmalah: String, isBamalah: Boolean,font: FontFamily) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .padding(vertical = 8.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.sura_border),
+            contentDescription = "Surah Border",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.FillBounds
+        )
+        val text = "surah${surah.toString().padStart(3, '0')} surah-icon"
+        Text(
+            text = text,
+            fontSize = 20.sp,
+            fontFamily = SurahNameFontFamily,
+            maxLines = 1,
+            softWrap = false,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+    if (isBamalah) {
+        Text(
+            text = basmalah,
+            fontSize = 16.sp,
+            fontFamily = font,
             maxLines = 1,
             softWrap = false,
             color = MaterialTheme.colorScheme.onBackground,

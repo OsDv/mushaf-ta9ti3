@@ -13,4 +13,5 @@
     <string name="surah">سورة</string>
     <string name="back">عودة</string>
     <string name="startTest">إبدء الإختبار</string>
+    <string name="settings">الإعدات</string>
 </resources>

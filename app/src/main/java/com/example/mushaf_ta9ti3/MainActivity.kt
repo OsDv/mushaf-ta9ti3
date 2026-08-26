@@ -17,19 +17,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val quranDB = QuranDatabase.getDatabase(applicationContext)
+        val userPreferences = UserPreferences(applicationContext)
 
-        // 2. Create the Repository instance
-        val repository = QuranRepository(quranDB = quranDB)
+        val repository = QuranRepository(quranDB = quranDB,userPreferences = userPreferences)
 
-        // 3. Create the Factory instance
-        val factory = AppViewModelFactory(repository)
+        val factory = AppViewModelFactory(repository,userPreferences)
 
         setContent {
             Mushafta9ti3Theme {
-                // Scaffold automatically calculates the exact size of the status bar and phone buttons
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
-                    // We apply that padding to a Box, and put your AppNavigation safely inside it
                     Box(modifier = Modifier.padding(innerPadding)) {
                         AppNavigation(viewModelFactory = factory)
                     }

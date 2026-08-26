@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -12,10 +11,12 @@ import com.example.mushaf_ta9ti3.repository.QuranRepository
 import com.example.mushaf_ta9ti3.ui.screens.HomeScreen
 import com.example.mushaf_ta9ti3.ui.screens.MushafNavigationScreen
 import com.example.mushaf_ta9ti3.ui.screens.MushafScreen
+import com.example.mushaf_ta9ti3.ui.screens.SettingsScreen
 import com.example.mushaf_ta9ti3.ui.screens.Ta9ti3ResultScreen
 import com.example.mushaf_ta9ti3.ui.screens.Ta9ti3SessionScreen
 import com.example.mushaf_ta9ti3.ui.screens.Ta9ti3SetupScreen
 import com.example.mushaf_ta9ti3.view.MushafViewModel
+import com.example.mushaf_ta9ti3.view.SettingsViewModel
 import com.example.mushaf_ta9ti3.view.Ta9ti3ViewModel
 
 // Define the routes as simple strings
@@ -26,6 +27,7 @@ object Routes {
     const val TA9TI3_SETUP = "ta9ti3_setup"
     const val TA9TI3_SESSION = "ta9ti3_session"
     const val TA9TI3_RESULT = "ta9ti3_result"
+    const val SETTINGS = "settings"
 }
 
 @Composable
@@ -34,18 +36,18 @@ fun AppNavigation(viewModelFactory: AppViewModelFactory) {
     val navController = rememberNavController()
     val mushafViewModel: MushafViewModel = viewModel(factory = viewModelFactory)
     val ta9ti3ViewModel: Ta9ti3ViewModel = viewModel(factory = viewModelFactory)
+    val settinsViewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
 
     NavHost(navController = navController, startDestination = Routes.HOME) {
 
-        // 1. HOME SCREEN
         composable(Routes.HOME) {
             HomeScreen(
                 onNavigateToMushaf = { navController.navigate(Routes.MUSHAF_SELECTION) },
-                onNavigateToTa9ti3 = { navController.navigate(Routes.TA9TI3_SETUP) }
+                onNavigateToTa9ti3 = { navController.navigate(Routes.TA9TI3_SETUP) },
+                onNavigationToSettings = { navController.navigate(Routes.SETTINGS) }
             )
         }
 
-        // 2. MUSHAF SELECTION (Choose Surah or Hizb)
         composable(Routes.MUSHAF_SELECTION) {
             MushafNavigationScreen(
                 onSelectionMade = {
@@ -56,22 +58,19 @@ fun AppNavigation(viewModelFactory: AppViewModelFactory) {
             )
         }
 
-        // 3. MUSHAF VIEW (The Webview/Text reader we just built)
         composable(Routes.MUSHAF_VIEW) {
-            // Note: If you want the back button to go straight to Home like you mentioned:
             MushafScreen(
                 onReturnHome = {
                     navController.navigate(Routes.HOME) {
                         popUpTo(Routes.HOME) {
                             inclusive = true
-                        } // Clears history so back button closes app
+                        }
                     }
                 },
                 viewModel = mushafViewModel,
             )
         }
 
-        // 4. TA9TI3 SETUP (Select Hizbs/Surahs to test)
         composable(Routes.TA9TI3_SETUP) {
             Ta9ti3SetupScreen(
                 onStartTest = { navController.navigate(Routes.TA9TI3_SESSION) },
@@ -80,7 +79,6 @@ fun AppNavigation(viewModelFactory: AppViewModelFactory) {
             )
         }
 
-        // 5. TA9TI3 ACTIVE SESSION (The actual testing)
         composable(Routes.TA9TI3_SESSION) {
             Ta9ti3SessionScreen(
                 onEndSession = { navController.navigate(Routes.TA9TI3_RESULT) },
@@ -88,7 +86,6 @@ fun AppNavigation(viewModelFactory: AppViewModelFactory) {
             )
         }
 
-        // 6. TA9TI3 RESULT (Score and correct/incorrect list)
         composable(Routes.TA9TI3_RESULT) {
             Ta9ti3ResultScreen(
                 onReturnHome = {
@@ -99,19 +96,33 @@ fun AppNavigation(viewModelFactory: AppViewModelFactory) {
                 viewModel = ta9ti3ViewModel
             )
         }
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                onReturnHome = {
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.HOME) { inclusive = true }
+                    }
+                },
+                viewModel = settinsViewModel
+            )
+        }
     }
 }
 
-class AppViewModelFactory(private val repository: QuranRepository) : ViewModelProvider.Factory {
+class AppViewModelFactory(private val repository: QuranRepository, private val userPreferences: UserPreferences) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MushafViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MushafViewModel(repository) as T
+            return MushafViewModel(repository,userPreferences) as T
         }
         if (modelClass.isAssignableFrom(Ta9ti3ViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return Ta9ti3ViewModel(repository) as T
+            return Ta9ti3ViewModel(repository,userPreferences) as T
+        }
+        if (modelClass.isAssignableFrom(SettingsViewModel::class.java))  {
+            @Suppress("UNCHECKED_CAST")
+            return SettingsViewModel(userPreferences) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

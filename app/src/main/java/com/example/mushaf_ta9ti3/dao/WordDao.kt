@@ -1,31 +1,36 @@
 package com.example.mushaf_ta9ti3.dao
 
 import androidx.room3.Dao
-import androidx.room3.Query
+import androidx.room3.RawQuery
+import androidx.room3.RoomRawQuery
 import com.example.mushaf_ta9ti3.model.QuranWord
 
 @Dao
 interface WordDao {
-    @Query("SELECT * FROM words")
-    suspend fun getAllWords(): List<QuranWord>
+    @RawQuery
+    suspend fun getAllWords(query: RoomRawQuery): List<QuranWord>
 
-    @Query("SELECT * FROM words WHERE id BETWEEN :startId AND :endId")
-    suspend fun getWordsInRange(startId: Int, endId: Int): List<QuranWord>
+    @RawQuery
+    suspend fun getWordsInRange(query: RoomRawQuery): List<QuranWord>
 
-    @Query("SELECT w.id FROM words w WHERE w.surah = :surah AND w.word=1")
-    suspend fun getAyahsStartBySurah(surah : Int): List<Int>
-    @Query("SELECT w.* FROM words w WHERE w.surah = :surah AND w.word=1")
-    suspend fun getAyahsStartBySurahWords(surah : Int): List<QuranWord>
+    @RawQuery
+    suspend fun getAyahsStartBySurah(query: RoomRawQuery): List<Int>
 
-    @Query("SELECT w.id FROM words w WHERE w.surah = :surah AND w.ayah = :ayah ORDER BY w.id ASC")
-    suspend fun getWordsByAyah(surah :Int, ayah : Int): List<Int>
+    @RawQuery
+    suspend fun getAyahsStartBySurahWords(query: RoomRawQuery): List<QuranWord>
 
-    @Query("SELECT * from words where id = :id")
-    suspend fun getWordById(id : Int): QuranWord
+    @RawQuery
+    suspend fun getWordsByAyah(query: RoomRawQuery): List<Int>
 
-    @Query("SELECT w.id FROM words w where w.ayah = 1 AND w.word = 1")
-    suspend fun getSurahsStart(): List<Int>
+    @RawQuery
+    suspend fun getWordById(query: RoomRawQuery): QuranWord
 
-    @Query("SELECT w.text FROM words w where w.id BETWEEN 1 AND 4")
-    suspend fun getBasmalah(): List<String>
+    @RawQuery
+    suspend fun getSurahsStart(query: RoomRawQuery): List<Int>
+
+    @RawQuery
+    suspend fun getBasmalah(query: RoomRawQuery): List<String>
+
+    @RawQuery
+    suspend fun getAyahsStartBySurahs(query: RoomRawQuery): List<Int>
 }

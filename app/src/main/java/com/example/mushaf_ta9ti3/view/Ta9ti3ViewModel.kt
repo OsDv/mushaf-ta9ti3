@@ -1,12 +1,9 @@
 package com.example.mushaf_ta9ti3.view
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mushaf_ta9ti3.UserPreferences
 import com.example.mushaf_ta9ti3.enum.SelectionMode
-import com.example.mushaf_ta9ti3.model.Chapter
-import com.example.mushaf_ta9ti3.model.Hizb
 import com.example.mushaf_ta9ti3.model.QuranWord
 import com.example.mushaf_ta9ti3.repository.QuranRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +13,7 @@ import kotlinx.coroutines.launch
 import java.util.Collections.emptyList
 
 
-class Ta9ti3ViewModel(private val repository: QuranRepository) : MushafViewModel(repository) {
+class Ta9ti3ViewModel(private val repository: QuranRepository,private val userPreferences: UserPreferences) : MushafViewModel(repository,userPreferences) {
 
 
     private val _selectedHizbs = MutableStateFlow<Set<Int>>(emptySet())

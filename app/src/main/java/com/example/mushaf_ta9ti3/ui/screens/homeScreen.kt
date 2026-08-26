@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.example.mushaf_ta9ti3.R
 
 @Composable
-fun HomeScreen(onNavigateToMushaf: () -> Unit, onNavigateToTa9ti3: () -> Unit) {
+fun HomeScreen(onNavigateToMushaf: () -> Unit, onNavigateToTa9ti3: () -> Unit,onNavigationToSettings: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().background(Color(0xFFF1E9C5)),
         verticalArrangement = Arrangement.Center,
@@ -32,6 +32,10 @@ fun HomeScreen(onNavigateToMushaf: () -> Unit, onNavigateToTa9ti3: () -> Unit) {
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = onNavigateToTa9ti3, modifier = Modifier.fillMaxWidth(0.8f)) {
             Text(text = stringResource(R.string.ta9ti3))
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onNavigationToSettings, modifier = Modifier.fillMaxWidth(0.8f)) {
+            Text(text = stringResource(R.string.settings))
         }
     }
 }
